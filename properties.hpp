@@ -6,8 +6,6 @@
 
 #include <functional>
 
-#include "candle/types.hpp"
-
 class properties
 {
   using serializor_t = std::function<nlm::json()>;
