@@ -6,12 +6,17 @@
 
 #include <functional>
 
+#include <type_traits>
+
 #include "json.hpp"
 
 namespace nlm = nlohmann;
 
 class properties
 {
+  template <typename U>
+  using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<U>>;
+
   using serializor_t = std::function<nlm::json()>;
   using deserializor_t = std::function<void(nlm::json)>;
 
@@ -78,7 +83,7 @@ public:
           {
             if (!std::strcmp(nlm::json(u).type_name(), j.type_name()))
             {
-              u = j.template get<std::remove_cvref_t<U>>();
+              u = j.template get<remove_cvref_t<U>>();
             }
           }
         };
