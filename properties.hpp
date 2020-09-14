@@ -6,6 +6,10 @@
 
 #include <functional>
 
+#include "json.hpp"
+
+namespace nlm = nlohmann;
+
 class properties
 {
   using serializor_t = std::function<nlm::json()>;
