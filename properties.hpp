@@ -14,13 +14,12 @@ namespace nlm = nlohmann;
 
 class properties
 {
-  template <typename> struct array_size;
-
-  template <typename T, std::size_t N>
-  struct array_size<std::array<T, N>>: std::integral_constant<std::size_t, N> {};
-
   template <typename U>
   using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<U>>;
+
+  template <typename> struct size;
+  template <typename T, std::size_t N>
+  struct size<std::array<T, N>>: std::integral_constant<std::size_t, N>{};
 
   using serializor_t = std::function<nlm::json()>;
   using deserializor_t = std::function<void(nlm::json)>;
@@ -53,9 +52,9 @@ public:
   template <typename A = std::array<property_info, 0>, typename U>
   auto register_property(std::string_view k, U&& u, A&& a = {})
   {
-    std::array<property_info, array_size<A>{} + 1> b;
+    std::array<property_info, size<A>{} + 1> b;
 
-    if constexpr (bool(array_size<A>{}))
+    if constexpr (bool(size<A>{}))
     {
       std::move(a.begin(), a.end(), b.begin());
     }
@@ -129,9 +128,9 @@ public:
   >
   auto register_property(std::string_view k, U&& u, V&& v, A&& a = {})
   {
-    std::array<property_info, array_size<A>{} + 1> b;
+    std::array<property_info, size<A>{} + 1> b;
 
-    if constexpr (bool(array_size<A>{}))
+    if constexpr (bool(size<A>{}))
     {
       std::move(a.begin(), a.end(), b.begin());
     }
