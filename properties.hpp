@@ -14,6 +14,11 @@ namespace nlm = nlohmann;
 
 class properties
 {
+  template <typename> struct array_size;
+
+  template <typename T, std::size_t N>
+  struct array_size<std::array<T, N>>: std::integral_constant<std::size_t, N> {};
+
   template <typename U>
   using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<U>>;
 
@@ -45,13 +50,12 @@ public:
   void state(nlm::json const&) const;
 
   //
-  template <std::size_t I = 0,
-    typename A = std::array<property_info, 0>, typename U>
+  template <typename A = std::array<property_info, 0>, typename U>
   auto register_property(std::string_view k, U&& u, A&& a = {})
   {
-    std::array<property_info, I + 1> b;
+    std::array<property_info, array_size<A>{} + 1> b;
 
-    if constexpr (bool(I))
+    if constexpr (bool(array_size<A>{}))
     {
       std::move(a.begin(), a.end(), b.begin());
     }
@@ -94,7 +98,7 @@ public:
       {
         if constexpr (bool(sizeof...(a)))
         {
-          return register_property<I + 1>(std::forward<decltype(a)>(a)...,
+          return register_property(std::forward<decltype(a)>(a)...,
             std::move(b));
         }
         else
@@ -116,8 +120,7 @@ public:
       };
   }
 
-  template <std::size_t I = 0,
-    typename A = std::array<property_info, 0>, typename U, typename V,
+  template <typename A = std::array<property_info, 0>, typename U, typename V,
     std::enable_if_t<
       std::is_invocable_v<U> &&
       std::is_invocable_v<V, nlm::json>,
@@ -126,9 +129,9 @@ public:
   >
   auto register_property(std::string_view k, U&& u, V&& v, A&& a = {})
   {
-    std::array<property_info, I + 1> b;
+    std::array<property_info, array_size<A>{} + 1> b;
 
-    if constexpr (bool(I))
+    if constexpr (bool(array_size<A>{}))
     {
       std::move(a.begin(), a.end(), b.begin());
     }
@@ -143,7 +146,7 @@ public:
       {
         if constexpr (bool(sizeof...(a)))
         {
-          return register_property<I + 1>(std::forward<decltype(a)>(a)...,
+          return register_property(std::forward<decltype(a)>(a)...,
             std::move(b));
         }
         else
