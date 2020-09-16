@@ -114,15 +114,15 @@ public:
   void state(nlm::json const&) const;
 
   //
-  auto register_property(std::initializer_list<property_info> l)
+  auto register_property(std::initializer_list<property_info> const l)
   {
     std::vector<property_info> b(l.begin(), l.end());
     b.shrink_to_fit();
 
-    visitor_ = [this, b(std::move(b)), c(std::move(visitor_))]
-      (auto const f) noexcept(noexcept(f({})))
+    visitor_ = [this, b(std::move(b)), c(std::move(visitor_))](
+      auto const f) noexcept(noexcept(f({})))
       {
-        for (auto& i: std::as_const(b))
+        for (auto& i: b)
         {
           if (f(i))
           {
