@@ -2,11 +2,11 @@
 # define PROPERTIES_HPP
 # pragma once
 
-#include <array>
-
 #include <functional>
 
 #include <initializer_list>
+
+#include <memory>
 
 #include <type_traits>
 
@@ -18,10 +18,6 @@ class properties
 {
   template <typename U>
   using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<U>>;
-
-  template <typename> struct size;
-  template <typename T, std::size_t N>
-  struct size<std::array<T, N>>: std::integral_constant<std::size_t, N>{};
 
   using serializor_t = std::function<nlm::json()>;
   using deserializor_t = std::function<void(nlm::json)>;
@@ -36,6 +32,9 @@ class properties
 
     property_info(property_info const&) = default;
     property_info(property_info&&) = default;
+
+    property_info& operator=(property_info const&) = default;
+    property_info& operator=(property_info&&) = default;
 
     template <typename U,
       typename std::enable_if_t<
@@ -119,17 +118,20 @@ public:
   //
   auto register_property(std::initializer_list<property_info> const l)
   {
-    std::vector<property_info> b(l.begin(), l.end());
-    b.shrink_to_fit();
+    //auto b(std::make_shared<property_info[]>(l.size()));
 
-    visitor_ = [this, b(std::move(b)), c(std::move(visitor_))](
-      auto const f) noexcept(noexcept(f({})))
+    std::shared_ptr<property_info[]> b(new property_info[l.size()]);
+    std::copy(l.begin(), l.end(), b.get());
+
+    visitor_ = [this, b(std::move(b)), c(std::move(visitor_)), sz(l.size())](
+      auto const f) mutable noexcept(noexcept(f({}))) ->
+      properties::property_info const*
       {
-        for (auto& i: b)
+        for (auto i(b.get()), end(i + sz); end != i; ++i)
         {
-          if (f(i))
+          if (f(*i))
           {
-            return &i;
+            return i;
           }
         }
 
