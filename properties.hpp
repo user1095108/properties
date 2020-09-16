@@ -2,13 +2,15 @@
 # define PROPERTIES_HPP
 # pragma once
 
+#include <array>
+
 #include <functional>
 
 #include <initializer_list>
 
-#include <memory>
-
 #include <type_traits>
+
+#include <utility>
 
 #include "json.hpp"
 
@@ -109,21 +111,20 @@ public:
   void state(nlm::json const&) const;
 
   //
+  template <std::size_t N>
   auto register_properties(std::initializer_list<property_info> l)
   {
-    //auto b(std::make_shared<property_info[]>(l.size()));
-    std::shared_ptr<property_info[]> b(new property_info[l.size()]);
-    std::copy(l.begin(), l.end(), b.get());
+    std::array<property_info, N> b;
+    std::move(l.begin(), l.end(), b.data());
 
-    visitor_ = [end(b.get() + l.size()), b(std::move(b)),
-      c(std::move(visitor_))](auto f) noexcept(noexcept(
-      f(std::declval<property_info const&>()))) -> auto const*
+    visitor_ = [b(std::move(b)), c(std::move(visitor_))](auto f) noexcept(
+      noexcept(f(std::declval<property_info const&>()))) -> auto const*
       {
-        for (auto i(b.get()); end != i; ++i)
+        for (auto& i: b)
         {
-          if (f(*i))
+          if (f(i))
           {
-            return i;
+            return &i;
           }
         }
 
