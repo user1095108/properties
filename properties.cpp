@@ -12,7 +12,7 @@ int main()
 
     S()
     {
-      register_property(
+      register_properties(
         {
           {"b", b},
           {"i", i},
