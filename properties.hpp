@@ -32,7 +32,10 @@ class properties
     serializor_t serializor{};
     deserializor_t deserializor{};
 
-    property_info() = default;
+    property_info() noexcept = default;
+
+    property_info(property_info const&) = default;
+    property_info(property_info&&) = default;
 
     template <typename U,
       typename std::enable_if_t<
