@@ -30,12 +30,6 @@ class properties
 
     property_info() noexcept = default;
 
-    property_info(property_info const&) = default;
-    property_info(property_info&&) = default;
-
-    property_info& operator=(property_info const&) = default;
-    property_info& operator=(property_info&&) = default;
-
     template <typename U,
       typename std::enable_if_t<
         std::is_lvalue_reference_v<U> &&
