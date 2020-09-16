@@ -6,6 +6,8 @@
 
 #include <functional>
 
+#include <initializer_list>
+
 #include <type_traits>
 
 #include "json.hpp"
@@ -26,9 +28,72 @@ class properties
 
   struct property_info
   {
-    std::string_view k;
-    serializor_t serializor;
-    deserializor_t deserializor;
+    std::string_view k{};
+    serializor_t serializor{};
+    deserializor_t deserializor{};
+
+    property_info() = default;
+
+    template <typename U,
+      typename std::enable_if_t<
+        std::is_lvalue_reference_v<U> &&
+        !std::is_const_v<std::remove_reference_t<U>>,
+        int
+      > = 0
+    >
+    property_info(std::string_view key, U&& u):
+      k(std::move(key)),
+      serializor([&]()noexcept->decltype(auto){return u;}),
+      deserializor([&](auto&& j)
+        {
+          if (!std::strcmp(nlm::json(u).type_name(), j.type_name()))
+          {
+            u = j.template get<remove_cvref_t<U>>();
+          }
+        }
+      )
+    {
+    }
+
+    template <typename U,
+      typename std::enable_if_t<
+        std::is_lvalue_reference_v<U> &&
+        std::is_const_v<std::remove_reference_t<U>>,
+        int
+      > = 0
+    >
+    property_info(std::string_view key, U&& u):
+      k(std::move(key)),
+      serializor([&]()noexcept->decltype(auto){return u;})
+    {
+    }
+
+    template <typename U,
+      typename std::enable_if_t<
+        std::is_invocable_v<U>,
+        int
+      > = 0
+    >
+    property_info(std::string_view key, U&& u):
+      k(std::move(key)),
+      serializor([=]()noexcept(noexcept(u()))->decltype(auto){return u();})
+    {
+    }
+
+    template <typename U,
+      typename V,
+      typename std::enable_if_t<
+        std::is_invocable_v<U> &&
+        std::is_invocable_v<V, nlm::json>,
+        int
+      > = 0
+    >
+    property_info(std::string_view key, U&& u, V&& v):
+      k(std::move(key)),
+      serializor([=]()noexcept(noexcept(u()))->decltype(auto){return u();}),
+      deserializor([=](auto&& j){v(std::forward<decltype(j)>(j));})
+    {
+    }
   };
 
   std::function<property_info const*(
@@ -49,121 +114,23 @@ public:
   void state(nlm::json const&) const;
 
   //
-  template <typename A = std::array<property_info, 0>, typename U>
-  auto register_property(std::string_view k, U&& u, A&& a = {})
+  auto register_property(std::initializer_list<property_info> l)
   {
-    std::array<property_info, size<A>{} + 1> b;
+    std::vector<property_info> b(l.begin(), l.end());
+    b.shrink_to_fit();
 
-    if constexpr (bool(size<A>{}))
-    {
-      std::move(a.begin(), a.end(), b.begin());
-    }
-
-    if constexpr (std::is_invocable_v<U>)
-    {
-      b.back() = {
-        std::move(k),
-        [=]()noexcept(noexcept(u()))->decltype(auto){return u();},
-        {}
-      };
-    }
-    else if constexpr (std::is_lvalue_reference_v<U>)
-    {
-      if constexpr (std::is_const_v<std::remove_reference_t<U>>)
+    visitor_ = [this, b(std::move(b)), c(std::move(visitor_))]
+      (auto const f) noexcept(noexcept(f({})))
       {
-        b.back() = {
-          std::move(k),
-          [&]()noexcept->decltype(auto){return u;},
-          {}
-        };
-      }
-      else
-      {
-        b.back() = {
-          std::move(k),
-          [&]()noexcept->decltype(auto){return u;},
-          [&](auto&& j)
+        for (auto& i: std::as_const(b))
+        {
+          if (f(i))
           {
-            if (!std::strcmp(nlm::json(u).type_name(), j.type_name()))
-            {
-              u = j.template get<remove_cvref_t<U>>();
-            }
+            return &i;
           }
-        };
-      }
-    }
-
-    return [this, b(std::move(b))](auto&& ...a) mutable
-      {
-        if constexpr (bool(sizeof...(a)))
-        {
-          return register_property(std::forward<decltype(a)>(a)...,
-            std::move(b));
         }
-        else
-        {
-          visitor_ = [b(std::move(b)), c(std::move(visitor_))](auto f)
-            noexcept(noexcept(f({})))
-            {
-              for (auto& i: b)
-              {
-                if (f(i))
-                {
-                  return &i;
-                }
-              }
 
-              return c ? c(std::move(f)) : typename A::const_pointer{};
-            };
-        }
-      };
-  }
-
-  template <typename A = std::array<property_info, 0>, typename U, typename V,
-    std::enable_if_t<
-      std::is_invocable_v<U> &&
-      std::is_invocable_v<V, nlm::json>,
-      int
-    > = 0
-  >
-  auto register_property(std::string_view k, U&& u, V&& v, A&& a = {})
-  {
-    std::array<property_info, size<A>{} + 1> b;
-
-    if constexpr (bool(size<A>{}))
-    {
-      std::move(a.begin(), a.end(), b.begin());
-    }
-
-    b.back() = {
-      std::move(k),
-      [=]()noexcept(noexcept(u()))->decltype(auto){return u();},
-      [=](auto&& j){v(std::forward<decltype(j)>(j));}
-    };
-
-    return [this, b(std::move(b))](auto&& ...a) mutable
-      {
-        if constexpr (bool(sizeof...(a)))
-        {
-          return register_property(std::forward<decltype(a)>(a)...,
-            std::move(b));
-        }
-        else
-        {
-          visitor_ = [b(std::move(b)), c(std::move(visitor_))](auto f)
-            noexcept(noexcept(f({})))
-            {
-              for (auto& i: b)
-              {
-                if (f(i))
-                {
-                  return &i;
-                }
-              }
-
-              return c ? c(std::move(f)) : typename A::const_pointer{};
-            };
-        }
+        return c ? c(std::move(f)) : nullptr;
       };
   }
 

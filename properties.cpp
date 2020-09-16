@@ -12,10 +12,17 @@ int main()
 
     S()
     {
-      register_property("b", b)("i", i)
-        ("joke",[]{return "just a joke";},
-          [](nlm::json const& j){std::cout << "knock: " << j << std::endl;})
-        ();
+      register_property(
+        {
+          {"b", b},
+          {"i", i},
+          {
+            "joke",
+            []{return "just a joke";},
+            [](nlm::json const& j){std::cout << "knock: " << j << std::endl;}
+          }
+        }
+      );
     }
   } s;
 
