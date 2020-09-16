@@ -110,8 +110,7 @@ public:
   void state(nlm::json const&) const;
 
   //
-  template <template<class> class U = std::initializer_list, class T = property_info>
-  auto register_property(U<T> l)
+  auto register_property(std::initializer_list<property_info> l)
   {
     //auto b(std::make_shared<property_info[]>(l.size()));
     std::shared_ptr<property_info[]> b(new property_info[l.size()]);
