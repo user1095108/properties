@@ -116,11 +116,11 @@ public:
     std::shared_ptr<property_info[]> b(new property_info[l.size()]);
     std::copy(l.begin(), l.end(), b.get());
 
-    visitor_ = [this, b(std::move(b)), c(std::move(visitor_)), sz(l.size())](
-      auto f) noexcept(noexcept(f(std::declval<property_info const&>()))) ->
-      auto const*
+    visitor_ = [end(b.get() + l.size()), b(std::move(b)),
+      c(std::move(visitor_))](auto f) noexcept(noexcept(
+      f(std::declval<property_info const&>()))) -> auto const*
       {
-        for (auto i(b.get()), end(i + sz); end != i; ++i)
+        for (auto i(b.get()); end != i; ++i)
         {
           if (f(*i))
           {
