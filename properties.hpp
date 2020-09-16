@@ -118,7 +118,8 @@ public:
     std::copy(l.begin(), l.end(), b.get());
 
     visitor_ = [this, b(std::move(b)), c(std::move(visitor_)), sz(l.size())](
-      auto const f) noexcept(noexcept(f({}))) ->
+      auto const f) noexcept(noexcept(f(
+      std::declval<property_info const&>()))) ->
       properties::property_info const*
       {
         for (auto i(b.get()), end(i + sz); end != i; ++i)
