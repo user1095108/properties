@@ -126,8 +126,8 @@ public:
   template <std::size_t N>
   auto register_properties(property_info (&&l)[N])
   {
-    visitor_ = [b(to_array(std::move(l))), c(std::move(visitor_))](
-      auto f) noexcept(noexcept(f(std::declval<property_info const&>()))) ->
+    visitor_ = [b(to_array(std::move(l))), c(std::move(visitor_))](auto f)
+      noexcept(noexcept(f(std::declval<property_info const&>()))) ->
       auto const*
       {
         for (auto& i: b)
