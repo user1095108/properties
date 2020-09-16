@@ -26,7 +26,7 @@ class properties
   {
     std::string_view k;
     serializor_t serializor;
-    deserializor_t deserializor{};
+    deserializor_t deserializor;
 
     property_info() noexcept = default;
 
