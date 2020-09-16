@@ -24,8 +24,8 @@ class properties
 
   struct property_info
   {
-    std::string_view k{};
-    serializor_t serializor{};
+    std::string_view k;
+    serializor_t serializor;
     deserializor_t deserializor{};
 
     property_info() noexcept = default;
@@ -76,8 +76,7 @@ class properties
     {
     }
 
-    template <typename U,
-      typename V,
+    template <typename U, typename V,
       typename std::enable_if_t<
         std::is_invocable_v<U> &&
         std::is_invocable_v<V, nlm::json>,
