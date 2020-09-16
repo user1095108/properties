@@ -115,7 +115,7 @@ public:
   auto register_properties(std::initializer_list<property_info> l)
   {
     std::array<property_info, N> b;
-    std::move(l.begin(), l.end(), b.data());
+    std::copy(l.begin(), l.end(), b.data());
 
     visitor_ = [b(std::move(b)), c(std::move(visitor_))](auto f) noexcept(
       noexcept(f(std::declval<property_info const&>()))) -> auto const*
