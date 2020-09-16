@@ -116,7 +116,7 @@ public:
   void state(nlm::json const&) const;
 
   //
-  auto register_property(std::initializer_list<property_info> const l)
+  auto register_property(std::initializer_list<property_info> l)
   {
     //auto b(std::make_shared<property_info[]>(l.size()));
 
