@@ -144,7 +144,7 @@ public:
   auto get(std::string_view const&) const;
 
   template <std::size_t N>
-  auto get(char const (&k)[N]) const noexcept
+  auto get(char const (&k)[N]) const
   {
     return get({k, N - 1});
   }
