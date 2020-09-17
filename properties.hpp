@@ -143,6 +143,12 @@ public:
   //
   auto get(std::string_view const&) const;
 
+  template <std::size_t N>
+  auto get(char const (&k)[N]) const noexcept
+  {
+    return get({k, N - 1});
+  }
+
   template <typename U>
   auto set(std::string_view const& k, U&& u) const
   {
