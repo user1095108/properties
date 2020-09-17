@@ -5,6 +5,8 @@
 //////////////////////////////////////////////////////////////////////////////
 int main()
 {
+  using json = nlohmann::json;
+
   struct S: properties
   {
     bool b{};
@@ -19,7 +21,7 @@ int main()
           {
             "joke",
             []{return "just a joke";},
-            [](nlm::json const& j){std::cout << "knock: " << j << std::endl;}
+            [](json const& j){std::cout << "knock: " << j << std::endl;}
           },
           {
             "lol",
