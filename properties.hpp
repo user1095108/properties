@@ -42,15 +42,15 @@ class properties
     serializor_t serializor;
     deserializor_t deserializor;
 
-    template <typename U,
+    template <std::size_t N, typename U,
       typename std::enable_if_t<
         std::is_lvalue_reference_v<U> &&
         !std::is_const_v<std::remove_reference_t<U>>,
         int
       > = 0
     >
-    property_info(std::string_view key, U&& u):
-      k(std::move(key)),
+    property_info(char const (&key)[N], U&& u):
+      k(key, N - 1),
       serializor([&]()noexcept->decltype(auto){return u;}),
       deserializor([&](auto&& j)
         {
@@ -63,40 +63,40 @@ class properties
     {
     }
 
-    template <typename U,
+    template <std::size_t N, typename U,
       typename std::enable_if_t<
         std::is_lvalue_reference_v<U> &&
         std::is_const_v<std::remove_reference_t<U>>,
         int
       > = 0
     >
-    property_info(std::string_view key, U&& u):
-      k(std::move(key)),
+    property_info(char const (&key)[N], U&& u):
+      k(key, N - 1),
       serializor([&]()noexcept->decltype(auto){return u;})
     {
     }
 
-    template <typename U,
+    template <std::size_t N, typename U,
       typename std::enable_if_t<
         std::is_invocable_v<U>,
         int
       > = 0
     >
-    property_info(std::string_view key, U&& u):
-      k(std::move(key)),
+    property_info(char const (&key)[N], U&& u):
+      k(key, N - 1),
       serializor([=]()noexcept(noexcept(u()))->decltype(auto){return u();})
     {
     }
 
-    template <typename U, typename V,
+    template <std::size_t N, typename U, typename V,
       typename std::enable_if_t<
         std::is_invocable_v<U> &&
         std::is_invocable_v<V, json>,
         int
       > = 0
     >
-    property_info(std::string_view key, U&& u, V&& v):
-      k(std::move(key)),
+    property_info(char const (&key)[N], U&& u, V&& v):
+      k(key, N - 1),
       serializor([=]()noexcept(noexcept(u()))->decltype(auto){return u();}),
       deserializor([=](auto&& j){v(std::forward<decltype(j)>(j));})
     {
