@@ -19,7 +19,7 @@ int main()
           {
             "joke",
             []{return "just a joke";},
-            [](auto const& j){std::cout << "knock: " << j << std::endl;}
+            [](auto&& j){std::cout << "knock: " << j << std::endl;}
           },
           {
             "lol",
