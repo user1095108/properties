@@ -2,8 +2,6 @@
 
 #include "properties.hpp"
 
-using json = nlohmann::json;
-
 //////////////////////////////////////////////////////////////////////////////
 int main()
 {
@@ -21,7 +19,7 @@ int main()
           {
             "joke",
             []{return "just a joke";},
-            [](json const& j){std::cout << "knock: " << j << std::endl;}
+            [](auto const& j){std::cout << "knock: " << j << std::endl;}
           },
           {
             "lol",
