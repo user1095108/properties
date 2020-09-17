@@ -2,11 +2,11 @@
 
 #include "properties.hpp"
 
+using json = nlohmann::json;
+
 //////////////////////////////////////////////////////////////////////////////
 int main()
 {
-  using json = nlohmann::json;
-
   struct S: properties
   {
     bool b{};
