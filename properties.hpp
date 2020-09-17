@@ -14,10 +14,10 @@
 
 #include "json.hpp"
 
-namespace nlm = nlohmann;
-
 class properties
 {
+  using json = nlohmann::json;
+
   template <typename U>
   using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<U>>;
 
@@ -33,8 +33,8 @@ class properties
     return to_array_impl(std::move(a), std::make_index_sequence<N>{});
   }
 
-  using serializor_t = std::function<nlm::json()>;
-  using deserializor_t = std::function<void(nlm::json)>;
+  using serializor_t = std::function<json()>;
+  using deserializor_t = std::function<void(json)>;
 
   struct property_info
   {
@@ -54,7 +54,7 @@ class properties
       serializor([&]()noexcept->decltype(auto){return u;}),
       deserializor([&](auto&& j)
         {
-          if (!std::strcmp(nlm::json(u).type_name(), j.type_name()))
+          if (!std::strcmp(json(u).type_name(), j.type_name()))
           {
             u = j.template get<remove_cvref_t<U>>();
           }
@@ -91,7 +91,7 @@ class properties
     template <typename U, typename V,
       typename std::enable_if_t<
         std::is_invocable_v<U> &&
-        std::is_invocable_v<V, nlm::json>,
+        std::is_invocable_v<V, json>,
         int
       > = 0
     >
@@ -118,7 +118,7 @@ public:
 
   //
   auto state() const;
-  void state(nlm::json const&) const;
+  void state(json const&) const;
 
   //
   template <std::size_t N>
@@ -183,14 +183,14 @@ inline auto properties::get(std::string_view const& k) const
   }
   else
   {
-    return nlm::json{};
+    return json{};
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 inline auto properties::state() const
 {
-  auto r(nlm::json::object());
+  auto r(json::object());
 
   visitor_([&](auto& pi)
     {
@@ -204,7 +204,7 @@ inline auto properties::state() const
 }
 
 //////////////////////////////////////////////////////////////////////////////
-inline void properties::state(nlm::json const& e) const
+inline void properties::state(json const& e) const
 {
   for (auto i(e.cbegin()), ecend(e.cend()); ecend != i; i = std::next(i))
   {
