@@ -183,7 +183,7 @@ inline auto properties::get(std::string_view const& k) const
   }
   else
   {
-    return {};
+    return nlm::json{};
   }
 }
 
