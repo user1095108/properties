@@ -117,7 +117,7 @@ public:
   properties& operator=(properties&&) = delete;
 
   //
-  nlm::json state() const;
+  auto state() const;
   void state(nlm::json const&) const;
 
   //
@@ -141,7 +141,7 @@ public:
   }
 
   //
-  nlm::json get(std::string_view const&) const;
+  auto get(std::string_view const&) const;
 
   template <typename U>
   auto set(std::string_view const& k, U&& u) const
@@ -172,7 +172,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-inline nlm::json properties::get(std::string_view const& k) const
+inline auto properties::get(std::string_view const& k) const
 {
   if (auto const pi(visitor_([&](auto& pi) noexcept
     {
@@ -188,7 +188,7 @@ inline nlm::json properties::get(std::string_view const& k) const
 }
 
 //////////////////////////////////////////////////////////////////////////////
-inline nlm::json properties::state() const
+inline auto properties::state() const
 {
   auto r(nlm::json::object());
 
