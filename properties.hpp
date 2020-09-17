@@ -42,8 +42,6 @@ class properties
     serializor_t serializor;
     deserializor_t deserializor;
 
-    property_info() noexcept = default;
-
     template <typename U,
       typename std::enable_if_t<
         std::is_lvalue_reference_v<U> &&
