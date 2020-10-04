@@ -212,7 +212,7 @@ inline auto properties::state() const
 //////////////////////////////////////////////////////////////////////////////
 inline void properties::state(json const& e) const
 {
-  for (auto i(e.cbegin()), ecend(e.cend()); ecend != i; i = std::next(i))
+  for (auto& i: e.items())
   {
     auto& k(i.key());
 
