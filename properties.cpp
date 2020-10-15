@@ -16,6 +16,7 @@ int main()
         {
           {"b", b},
           {"i", i},
+          {"_invisible", b},
           {
             "joke",
             []{return "just a joke";},
