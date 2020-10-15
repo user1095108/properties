@@ -200,7 +200,10 @@ inline auto properties::state() const
 
   visitor_([&](auto& pi)
     {
-      r.emplace(pi.k, pi.serializor());
+      if ('_' != pi.k.front())
+      {
+        r.emplace(pi.k, pi.serializor());
+      }
 
       return false;
     }
