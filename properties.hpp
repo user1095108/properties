@@ -59,6 +59,7 @@ class properties
         }
       )
     {
+      static_assert(N >= 1);
     }
 
     template <std::size_t N, typename U,
@@ -72,6 +73,7 @@ class properties
       k(key, N - 1),
       serializor([&]()noexcept->decltype(auto){return u;})
     {
+      static_assert(N >= 1);
     }
 
     template <std::size_t N, typename U,
@@ -84,6 +86,7 @@ class properties
       k(key, N - 1),
       serializor([=]()noexcept(noexcept(u()))->decltype(auto){return u();})
     {
+      static_assert(N >= 1);
     }
 
     template <std::size_t N, typename U, typename V,
@@ -98,6 +101,7 @@ class properties
       serializor([=]()noexcept(noexcept(u()))->decltype(auto){return u();}),
       deserializor([=](auto&& j){v(std::forward<decltype(j)>(j));})
     {
+      static_assert(N >= 1);
     }
   };
 
