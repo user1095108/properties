@@ -143,7 +143,18 @@ public:
   }
 
   //
-  auto get(std::string_view const&) const;
+  bool exists(std::string_view const& k) const
+  {
+    return !get(k).is_null();
+  }
+
+  template <std::size_t N>
+  auto exists(char const (&k)[N]) const
+  {
+    return exists({k, N - 1});
+  }
+
+  json get(std::string_view const&) const;
 
   template <std::size_t N>
   auto get(char const (&k)[N]) const
@@ -180,7 +191,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-inline auto properties::get(std::string_view const& k) const
+inline properties::json properties::get(std::string_view const& k) const
 {
   if (auto const pi(visitor_([&](auto& pi) noexcept
     {
