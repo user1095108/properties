@@ -173,7 +173,7 @@ public:
     {
       pi->deserializor(std::forward<U>(u));
 
-      const_cast<properties*>(this)->property_changed(k);
+      const_cast<properties*>(this)->property_changed(pi->k);
     }
 
     return [&](auto&& ...a)
@@ -243,6 +243,8 @@ inline void properties::state(json const& e) const
       })); pi && pi->deserializor)
     {
       pi->deserializor(i.value());
+
+      const_cast<properties*>(this)->property_changed(pi->k);
     }
   }
 }
