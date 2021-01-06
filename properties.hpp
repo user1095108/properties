@@ -111,6 +111,7 @@ class properties
 
 public:
   properties() = default;
+  virtual ~properties() = default;
 
   properties(properties const&) = delete;
   properties(properties&&) = delete;
@@ -171,6 +172,8 @@ public:
       })); pi && pi->deserializor)
     {
       pi->deserializor(std::forward<U>(u));
+
+      property_changed(k);
     }
 
     return [&](auto&& ...a)
@@ -188,6 +191,8 @@ public:
       }
     );
   }
+
+  virtual void property_changed(std::string_view const&) const;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -240,6 +245,11 @@ inline void properties::state(json const& e) const
       pi->deserializor(i.value());
     }
   }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+inline void properties::property_changed(std::string_view const&) const
+{
 }
 
 #endif // PROPERTIES_HPP
