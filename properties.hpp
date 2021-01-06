@@ -173,7 +173,7 @@ public:
     {
       pi->deserializor(std::forward<U>(u));
 
-      property_changed(k);
+      const_cast<properties*>(this)->property_changed(k);
     }
 
     return [&](auto&& ...a)
@@ -192,7 +192,7 @@ public:
     );
   }
 
-  virtual void property_changed(std::string_view const&) const;
+  virtual void property_changed(std::string_view const&);
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -248,7 +248,7 @@ inline void properties::state(json const& e) const
 }
 
 //////////////////////////////////////////////////////////////////////////////
-inline void properties::property_changed(std::string_view const&) const
+inline void properties::property_changed(std::string_view const&)
 {
 }
 
