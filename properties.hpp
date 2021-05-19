@@ -19,18 +19,6 @@ class properties
   template <typename U>
   using remove_cvref_t = std::remove_cv_t<std::remove_reference_t<U>>;
 
-  template <class T, std::size_t N, std::size_t ...I>
-  constexpr auto to_array_impl(T (&&a)[N], std::index_sequence<I...>)
-  {
-    return std::array<std::remove_cv_t<T>, N>{{std::move(a[I])...}};
-  }
- 
-  template <class T, std::size_t N>
-  constexpr auto to_array(T (&&a)[N])
-  {
-    return to_array_impl(std::move(a), std::make_index_sequence<N>{});
-  }
-
   using serializor_t = std::function<json()>;
   using deserializor_t = std::function<void(json)>;
 
@@ -127,8 +115,8 @@ public:
   template <std::size_t N>
   auto register_properties(property_info (&&l)[N])
   {
-    visitor_ = [b(to_array(std::move(l))), c(std::move(visitor_))](auto f)
-      noexcept(noexcept(f(std::declval<property_info const&>()))) ->
+    visitor_ = [b(std::to_array(std::move(l))), c(std::move(visitor_))]
+      (auto f) noexcept(noexcept(f(std::declval<property_info const&>()))) ->
       auto const*
       {
         for (auto& i: b)
